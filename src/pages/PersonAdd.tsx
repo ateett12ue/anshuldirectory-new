@@ -3,6 +3,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { usePerson } from '../context/PersonContext';
 import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
 import MaskedInput from 'react-text-mask';
 import type { FormData } from '../types';
 
@@ -18,9 +19,12 @@ const schema = yup.object().shape({
 const PersonAdd = () => {
   const { addPerson } = usePerson();
   const navigate = useNavigate();
+  const [showModal, setShowModal] = useState(false);
+
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors },
     watch,
     control,
@@ -32,6 +36,15 @@ const PersonAdd = () => {
 
   const onSubmit = (data: FormData) => {
     addPerson(data);
+    setShowModal(true);
+  };
+
+  const handleAddAnother = () => {
+    reset(); // Reset form
+    setShowModal(false);
+  };
+
+  const handleGoToList = () => {
     navigate('/list');
   };
 
@@ -39,19 +52,21 @@ const PersonAdd = () => {
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-lg mx-auto bg-gray-900 rounded-2xl shadow-xl p-10 border border-gray-700">
         <h2 className="text-4xl font-extrabold text-center text-white mb-8">Add New Person</h2>
+
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+          {/* Basic Fields */}
           {[
-            { name: 'firstName', label: 'First Name', type: 'text', placeholder: 'First Name' },
-            { name: 'lastName', label: 'Last Name', type: 'text', placeholder: 'Last Name' },
-            { name: 'email', label: 'Email', type: 'email', placeholder: 'Email' },
-          ].map(({ name, label, type, placeholder }) => (
+            { name: 'firstName', label: 'First Name', type: 'text' },
+            { name: 'lastName', label: 'Last Name', type: 'text' },
+            { name: 'email', label: 'Email', type: 'email' },
+          ].map(({ name, label, type }) => (
             <div key={name}>
               <label className="block text-sm font-medium text-gray-300 mb-1">{label}</label>
               <input
                 type={type}
-                placeholder={placeholder}
                 {...register(name as keyof FormData)}
-                className="w-full rounded-md bg-gray-800 text-white border border-gray-700 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 transition-all duration-200 px-3 py-2"
+                className="w-full rounded-md bg-gray-800 text-white border border-gray-700 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 px-3 py-2"
+                placeholder={label}
               />
               {errors[name as keyof typeof errors] && (
                 <p className="mt-1 text-sm text-red-400">{errors[name as keyof typeof errors]?.message}</p>
@@ -59,7 +74,7 @@ const PersonAdd = () => {
             </div>
           ))}
 
-         
+          {/* Phone */}
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-1">Phone</label>
             <Controller
@@ -71,19 +86,19 @@ const PersonAdd = () => {
                   mask={[/[1-9]/, /\d/, /\d/, /\d/, /\d/, /\d/, /\d/, /\d/, /\d/, /\d/]}
                   guide={false}
                   placeholder="9876543210"
-                  className="w-full rounded-md bg-gray-800 text-white border border-gray-700 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 transition-all duration-200 px-3 py-2"
+                  className="w-full rounded-md bg-gray-800 text-white border border-gray-700 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 px-3 py-2"
                 />
               )}
             />
             {errors.phone && <p className="mt-1 text-sm text-red-400">{errors.phone.message}</p>}
           </div>
 
-         
+          {/* State */}
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-1">State</label>
             <select
               {...register('state')}
-              className="w-full rounded-md bg-gray-800 text-white border border-gray-700 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 transition-all duration-200 px-3 py-2"
+              className="w-full rounded-md bg-gray-800 text-white border border-gray-700 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 px-3 py-2"
             >
               <option value="">Select a state</option>
               {['MH', 'DL', 'KA', 'TN', 'UP', 'WB', 'RJ', 'GJ', 'AP', 'MP'].map((code) => (
@@ -108,12 +123,13 @@ const PersonAdd = () => {
             {errors.state && <p className="mt-1 text-sm text-red-400">{errors.state.message}</p>}
           </div>
 
+          {/* City */}
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-1">City</label>
             <select
               {...register('city')}
-              className="w-full rounded-md bg-gray-800 text-white border border-gray-700 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 transition-all duration-200 px-3 py-2"
               disabled={!selectedState}
+              className="w-full rounded-md bg-gray-800 text-white border border-gray-700 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 px-3 py-2"
             >
               <option value="">Select a city</option>
               {(() => {
@@ -139,7 +155,7 @@ const PersonAdd = () => {
             {errors.city && <p className="mt-1 text-sm text-red-400">{errors.city.message}</p>}
           </div>
 
-         
+          {/* Submit Button */}
           <button
             type="submit"
             className="w-full mt-6 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-200 shadow-lg"
@@ -148,6 +164,31 @@ const PersonAdd = () => {
           </button>
         </form>
       </div>
+
+      {/* Confirmation Modal */}
+      {showModal && (
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 backdrop-blur-sm">
+    <div className="bg-[#1f1f1f] p-8 rounded-xl border border-gray-700 shadow-2xl w-full max-w-md text-center animate-fade-in">
+      <h3 className="text-2xl font-semibold text-white mb-4">Person Added</h3>
+      <p className="text-gray-400 mb-6">The person has been successfully saved to the directory.</p>
+
+      <div className="flex justify-center gap-4">
+        <button
+          onClick={handleAddAnother}
+          className="w-1/2 py-2 border border-gray-600 text-gray-300 rounded-md transition-all duration-200 hover:border-blue-500 hover:text-white hover:bg-[#2a2a2a]"
+        >
+          Add Another
+        </button>
+        <button
+          onClick={handleGoToList}
+          className="w-1/2 py-2 border border-gray-600 text-gray-300 rounded-md transition-all duration-200 hover:border-blue-500 hover:text-white hover:bg-[#2a2a2a]"
+        >
+          Go to List
+        </button>
+      </div>
+    </div>
+  </div>
+)}
     </div>
   );
 };
