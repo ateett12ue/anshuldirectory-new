@@ -92,7 +92,7 @@ const EmailBanner = () => {
   return (
     <div 
       ref={sectionRef}
-      className="section-email py-64 mt-24 relative overflow-hidden"
+      className="section-email py-56 relative overflow-hidden"
       style={{ backgroundColor: '#3A0CA3' }} // Purple background
     >
       <div className="absolute left-0 right-0 top-0 bottom-0 flex items-center justify-center z-10 pointer-events-none">
@@ -119,7 +119,7 @@ const EmailBanner = () => {
          
         <p 
           ref={textRef}
-          className="text-center text-white mt-80 text-3xl" 
+          className="text-center text-white mt-86 text-3xl" 
           style={{ fontFamily: "'Playfair Display', serif" }}
         >
           Subscribe to my newsletter for updates.

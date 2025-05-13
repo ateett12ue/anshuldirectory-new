@@ -96,7 +96,7 @@ const PhoneBanner = () => {
   return (
     <div 
       ref={sectionRef}
-      className="section-phone py-64 mt-24 relative overflow-hidden"
+      className="section-phone py-56 mt-24 relative overflow-hidden"
       style={{ backgroundColor: '#8B0000' }} // Dark red background
     >
       <div className="absolute left-0 right-0 top-0 bottom-0 flex items-center justify-center z-10 pointer-events-none">

@@ -4,6 +4,7 @@ import PersonHome from './pages/PersonHome';
 import PersonAdd from './pages/PersonAdd';
 import PersonList from './pages/PersonList';
 import TestPage from './pages/TestPage';
+import Footer from './components/Footer';
 import { PersonProvider } from './context/PersonContext';
 import './App.css';
 
@@ -14,7 +15,7 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <PersonProvider>
         <Router>
-          <div className="min-h-screen text-white">
+          <div className="min-h-screen text-white flex flex-col bg-black">
             <nav className="sticky top-0 bg-black shadow-md z-10">
               <div className="container mx-auto px-4 py-4 flex justify-between items-center">
                 <Link 
@@ -54,7 +55,7 @@ function App() {
               </div>
             </nav>
 
-            <main>
+            <main className="flex-grow">
               <Routes>
                 <Route path="/" element={<PersonHome />} />
                 <Route path="/add" element={<PersonAdd />} />
@@ -62,6 +63,8 @@ function App() {
                 <Route path="/test" element={<TestPage />} />
               </Routes>
             </main>
+            
+            <Footer />
           </div>
         </Router>
       </PersonProvider>
