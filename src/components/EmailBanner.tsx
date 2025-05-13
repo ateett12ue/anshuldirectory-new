@@ -119,7 +119,7 @@ const EmailBanner = () => {
          
         <p 
           ref={textRef}
-          className="text-center text-white mt-64 text-3xl" 
+          className="text-center text-white mt-80 text-3xl" 
           style={{ fontFamily: "'Playfair Display', serif" }}
         >
           Subscribe to my newsletter for updates.
