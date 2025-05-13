@@ -35,13 +35,16 @@ function App() {
                   </span>
                 </Link>
                 <div className="space-x-8">
-                  <Link to="/" className="text-gray-300 hover:text-white transition-colors">
+                  <Link
+                  to="/"
+                  className="text-gray-300 font-medium relative inline-block transition-transform duration-300 ease-in-out hover:scale-110 hover:text-white hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.9)]"
+                  >
                     Home
                   </Link>
-                  <Link to="/add" className="text-gray-300 hover:text-white transition-colors">
+                  <Link to="/add" className="text-gray-300 font-medium relative inline-block transition-transform duration-300 ease-in-out hover:scale-110 hover:text-white hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.9)]">
                     Add Person
                   </Link>
-                  <Link to="/list" className="text-gray-300 hover:text-white transition-colors">
+                  <Link to="/list" className="text-gray-300 font-medium relative inline-block transition-transform duration-300 ease-in-out hover:scale-110 hover:text-white hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.9)]">
                     View Directory
                   </Link>
                   {/* <Link to="/test" className="text-gray-300 hover:text-white transition-colors">
