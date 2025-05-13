@@ -1,4 +1,3 @@
-import React from 'react';
 import BackgroundTransition from '../components/BackgroundTransition';
 
 const TestPage = () => {
