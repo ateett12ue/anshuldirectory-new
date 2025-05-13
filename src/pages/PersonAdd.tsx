@@ -172,18 +172,18 @@ const PersonAdd = () => {
       <h3 className="text-2xl font-semibold text-white mb-4">Person Added</h3>
       <p className="text-gray-400 mb-6">The person has been successfully saved to the directory.</p>
 
-      <div className="flex justify-center gap-4">
+      <div className="flex flex-row sm:flex-row justify-center gap-4">
         <button
           onClick={handleAddAnother}
-          className="w-1/2 py-2 border border-gray-600 text-gray-300 rounded-md transition-all duration-200 hover:border-blue-500 hover:text-white hover:bg-[#2a2a2a]"
+          className="px-8 py-4 bg-black text-white border border-white rounded-lg transition-all duration-300 text-center w-full sm:w-auto font-medium hover:border-transparent hover:bg-black hover:shadow-[0_0_10px_rgba(255,255,255,0.5)] relative after:absolute after:inset-0 after:p-[2px] after:rounded-lg after:content-[''] hover:after:bg-gradient-to-r hover:after:from-blue-500 hover:after:to-purple-600 after:mask-composite after:-z-10"
         >
           Add Another
         </button>
         <button
           onClick={handleGoToList}
-          className="w-1/2 py-2 border border-gray-600 text-gray-300 rounded-md transition-all duration-200 hover:border-blue-500 hover:text-white hover:bg-[#2a2a2a]"
+          className="px-8 py-4 bg-black text-white border border-white rounded-lg transition-all duration-300 text-center w-full sm:w-auto font-medium hover:border-transparent hover:bg-black hover:shadow-[0_0_10px_rgba(255,255,255,0.5)] relative after:absolute after:inset-0 after:p-[2px] after:rounded-lg after:content-[''] hover:after:bg-gradient-to-r hover:after:from-blue-500 hover:after:to-purple-600 after:mask-composite after:-z-10"
         >
-          Go to List
+          View Directory
         </button>
       </div>
     </div>
