@@ -31,12 +31,6 @@ const PersonList = () => {
           👥 Person Directory
         </h2>
 
-        {people.length === 0 && !isDeleting && (
-          <div className="text-center text-lg text-gray-400 animate-fade-in">
-            No people to display.
-          </div>
-        )}
-
         <div className="overflow-x-auto animate-fade-in">
           <div className="inline-block min-w-full align-middle">
             <div className="overflow-hidden shadow-xl ring-1 ring-gray-700 ring-opacity-5 rounded-lg">
@@ -61,33 +55,44 @@ const PersonList = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-700 bg-gray-800">
-                  {people.map((person) => (
-                    <tr
-                      key={person.id}
-                      className="hover:bg-gray-700 transition duration-200"
-                    >
-                      <td className="px-4 py-4 text-sm text-center font-medium text-white">
-                        {person.firstName} {person.lastName}
-                      </td>
-                      <td className="px-4 py-4 text-sm text-center text-gray-300">
-                        {person.email}
-                      </td>
-                      <td className="px-4 py-4 text-sm text-center text-gray-300">
-                        {person.phone}
-                      </td>
-                      <td className="px-4 py-4 text-sm text-center text-gray-300">
-                        {person.city}, {person.state}
-                      </td>
-                      <td className="px-4 py-4 text-sm text-center">
-                        <button
-                          onClick={() => handleDeleteClick(person.id)}
-                          className="text-red-400 hover:text-red-300 transition font-semibold"
-                        >
-                          Delete
-                        </button>
+                  {people.length === 0 ? (
+                    <tr>
+                      <td colSpan={5} className="py-10 text-center text-gray-400 text-lg">
+                        <div className="flex flex-col items-center justify-center gap-3">
+                          <span className="text-5xl animate-pulse">📭</span>
+                          <p className="text-xl font-medium">No people to display</p>
+                        </div>
                       </td>
                     </tr>
-                  ))}
+                  ) : (
+                    people.map((person) => (
+                      <tr
+                        key={person.id}
+                        className="hover:bg-gray-700 transition duration-200"
+                      >
+                        <td className="px-4 py-4 text-sm text-center font-medium text-white">
+                          {person.firstName} {person.lastName}
+                        </td>
+                        <td className="px-4 py-4 text-sm text-center text-gray-300">
+                          {person.email}
+                        </td>
+                        <td className="px-4 py-4 text-sm text-center text-gray-300">
+                          {person.phone}
+                        </td>
+                        <td className="px-4 py-4 text-sm text-center text-gray-300">
+                          {person.city}, {person.state}
+                        </td>
+                        <td className="px-4 py-4 text-sm text-center">
+                          <button
+                            onClick={() => handleDeleteClick(person.id)}
+                            className="text-red-400 hover:text-red-300 transition font-semibold"
+                          >
+                            Delete
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  )}
                 </tbody>
               </table>
             </div>
