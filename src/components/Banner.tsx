@@ -21,8 +21,7 @@ const Banner = ({ finalWord = "DIRECTORY", interval = 700 }: BannerProps) => {
   
   const bannerRef = useRef<HTMLHeadingElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
-  
+  const intervalRef = useRef<number | null>(null);
   // Get font for current word
   const getFontForWord = (word: string, isCompleted: boolean) => {
     if (isCompleted) {
