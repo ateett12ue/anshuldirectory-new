@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { usePerson } from '../context/PersonContext';
 import { Link } from 'react-router-dom';
 import { 
@@ -16,13 +16,50 @@ import {
 import { MagnifyingGlassIcon } from '@heroicons/react/24/solid';
 
 const PersonList = () => {
-  const { people, deletePerson } = usePerson();
+  const { people, deletePerson, isLoading } = usePerson();
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [personToDelete, setPersonToDelete] = useState<string | null>(null);
   const [copiedField, setCopiedField] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const modalRef = useRef<HTMLDivElement>(null);
+
+  // Add event listener to handle clicks outside the modal
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (isDeleting && modalRef.current && !modalRef.current.contains(event.target as Node)) {
+        handleDeleteCancel();
+      }
+    };
+
+    // Add event listener when modal is open
+    if (isDeleting) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    // Clean up
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isDeleting]);
+
+  // Add escape key handler
+  useEffect(() => {
+    const handleEscapeKey = (event: KeyboardEvent) => {
+      if (isDeleting && event.key === 'Escape') {
+        handleDeleteCancel();
+      }
+    };
+
+    if (isDeleting) {
+      document.addEventListener('keydown', handleEscapeKey);
+    }
+
+    return () => {
+      document.removeEventListener('keydown', handleEscapeKey);
+    };
+  }, [isDeleting]);
 
   const toggleSearch = () => {
     setIsSearchOpen((prev) => !prev);
@@ -42,23 +79,36 @@ const PersonList = () => {
       .includes(searchQuery.toLowerCase())
   );
 
-  const handleDeleteClick = (id: string) => {
+  const handleDeleteClick = useCallback((id: string) => {
     setPersonToDelete(id);
     setIsDeleting(true);
-  };
+  }, []);
 
-  const handleDeleteConfirm = () => {
-    if (personToDelete) deletePerson(personToDelete);
-    setIsDeleting(false);
-    setPersonToDelete(null);
-  };
+  const handleDeleteConfirm = useCallback(async () => {
+    if (personToDelete) {
+      try {
+        await deletePerson(personToDelete);
+      } catch (error) {
+        console.error('Error deleting person:', error);
+      } finally {
+        // Ensure state is reset even if deletion fails
+        handleDeleteCancel();
+      }
+    }
+  }, [personToDelete, deletePerson]);
 
-  const handleDeleteCancel = () => {
-    setIsDeleting(false);
-    setPersonToDelete(null);
-  };
+  const handleDeleteCancel = useCallback(() => {
+    // Use a timeout to ensure smooth animation for modal closing
+    document.body.classList.add('modal-closing');
+    
+    setTimeout(() => {
+      setIsDeleting(false);
+      setPersonToDelete(null);
+      document.body.classList.remove('modal-closing');
+    }, 50);
+  }, []);
 
-  const handleCopyClick = (text: string, fieldId: string) => {
+  const handleCopyClick = useCallback((text: string, fieldId: string) => {
     navigator.clipboard.writeText(text)
       .then(() => {
         setCopiedField(fieldId);
@@ -69,7 +119,7 @@ const PersonList = () => {
       .catch((err) => {
         console.error('Could not copy text: ', err);
       });
-  };
+  }, []);
 
   // Column width styles
   const colWidths = {
@@ -79,6 +129,16 @@ const PersonList = () => {
     location: 'w-[25%]',
     actions: 'w-[10%]'
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="animate-pulse">
+          <div className="w-12 h-12 border-4 border-t-violet-500 border-r-violet-300 border-b-violet-200 border-l-violet-400 rounded-full animate-spin"></div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="text-white min-h-screen py-16 px-4 sm:px-6 lg:px-8">
@@ -246,8 +306,13 @@ const PersonList = () => {
 
         {/* Delete Confirmation Modal */}
         {isDeleting && personToDelete && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 backdrop-blur-sm">
-            <div className="bg-[#1f1f1f] p-8 rounded-xl border border-gray-700 shadow-2xl w-full max-w-md text-center animate-fade-in">
+          <div 
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 backdrop-blur-sm"
+          >
+            <div 
+              ref={modalRef}
+              className="bg-[#1f1f1f] p-8 rounded-xl border border-gray-700 shadow-2xl w-full max-w-md text-center animate-fade-in"
+            >
               <div className="flex justify-center mb-4">
                 <ExclamationTriangleIcon className="w-12 h-12 text-red-500" />
               </div>

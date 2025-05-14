@@ -1,76 +1,133 @@
-import { createContext, useContext } from 'react';
+import { createContext, useContext, useMemo, useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import type { ReactNode } from 'react';
 import type { Person, FormData } from '../types';
 
+// Storage key as a constant for consistency
+const STORAGE_KEY = 'people';
+
+// Query keys as constants for consistency across the application
+const QUERY_KEYS = {
+  people: ['people'],
+} as const;
+
 interface PersonContextType {
   people: Person[];
-  addPerson: (data: FormData) => void;
-  deletePerson: (id: string) => void;
+  isLoading: boolean;
+  isError: boolean;
+  error: Error | null;
+  addPerson: (data: FormData) => Promise<void>;
+  deletePerson: (id: string) => Promise<void>;
 }
 
-const PersonContext = createContext<PersonContextType | undefined>(undefined);
+// Create a more strongly typed context with default values
+const PersonContext = createContext<PersonContextType>({
+  people: [],
+  isLoading: false,
+  isError: false,
+  error: null,
+  addPerson: async () => {},
+  deletePerson: async () => {},
+});
+
+// Helper function to safely parse JSON from localStorage
+const getSavedPeople = (): Person[] => {
+  try {
+    const storedPeople = localStorage.getItem(STORAGE_KEY);
+    return storedPeople ? JSON.parse(storedPeople) : [];
+  } catch (error) {
+    console.error('Error loading people from localStorage:', error);
+    return [];
+  }
+};
+
+// Helper function to safely save JSON to localStorage
+const savePeople = (people: Person[]): void => {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(people));
+  } catch (error) {
+    console.error('Error saving people to localStorage:', error);
+  }
+};
 
 export function PersonProvider({ children }: { children: ReactNode }) {
   const queryClient = useQueryClient();
 
-  const { data: people = [] } = useQuery<Person[]>({
-    queryKey: ['people'],
-    queryFn: () => {
-      const storedPeople = localStorage.getItem('people');
-      return storedPeople ? JSON.parse(storedPeople) : [];
-    },
+  // Query to fetch people data
+  const { 
+    data: people = [], 
+    isLoading,
+    isError,
+    error
+  } = useQuery<Person[], Error>({
+    queryKey: QUERY_KEYS.people,
+    queryFn: getSavedPeople,
+    staleTime: 1000 * 60 * 5, // 5 minutes
   });
 
-  const addPersonMutation = useMutation<Person[], unknown, Person>({
-    mutationFn: (newPerson) => {
-      return new Promise<Person[]>((resolve) => {
-        const updatedPeople = [...people, newPerson];
-        localStorage.setItem('people', JSON.stringify(updatedPeople));
-        resolve(updatedPeople);
-      });
+  // Mutation to add a person
+  const addPersonMutation = useMutation<Person[], Error, Person>({
+    mutationFn: async (newPerson) => {
+      const updatedPeople = [...people, newPerson];
+      savePeople(updatedPeople);
+      return updatedPeople;
     },
     onSuccess: (updatedPeople) => {
-      queryClient.setQueryData(['people'], updatedPeople);
+      queryClient.setQueryData(QUERY_KEYS.people, updatedPeople);
     },
+    onError: (error) => {
+      console.error('Error adding person:', error);
+    }
   });
 
-  const deletePersonMutation = useMutation<Person[], unknown, string>({
-    mutationFn: (id) => {
-      return new Promise<Person[]>((resolve) => {
-        const updatedPeople = people.filter((person) => person.id !== id);
-        localStorage.setItem('people', JSON.stringify(updatedPeople));
-        resolve(updatedPeople);
-      });
+  // Mutation to delete a person
+  const deletePersonMutation = useMutation<Person[], Error, string>({
+    mutationFn: async (id) => {
+      const updatedPeople = people.filter((person) => person.id !== id);
+      savePeople(updatedPeople);
+      return updatedPeople;
     },
     onSuccess: (updatedPeople) => {
-      queryClient.setQueryData(['people'], updatedPeople);
+      queryClient.setQueryData(QUERY_KEYS.people, updatedPeople);
     },
+    onError: (error) => {
+      console.error('Error deleting person:', error);
+    }
   });
 
-  const addPerson = (data: FormData) => {
+  // Memoized add person function
+  const addPerson = useCallback(async (data: FormData) => {
     const newPerson: Person = {
-      id: Date.now().toString(),
+      id: crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(),
       ...data,
     };
-    addPersonMutation.mutate(newPerson);
-  };
+    await addPersonMutation.mutateAsync(newPerson);
+  }, [addPersonMutation]);
 
-  const deletePerson = (id: string) => {
-    deletePersonMutation.mutate(id);
-  };
+  // Memoized delete person function
+  const deletePerson = useCallback(async (id: string) => {
+    await deletePersonMutation.mutateAsync(id);
+  }, [deletePersonMutation]);
+
+  // Memoize the context value to prevent unnecessary re-renders
+  const contextValue = useMemo(() => ({
+    people,
+    isLoading,
+    isError,
+    error,
+    addPerson,
+    deletePerson,
+  }), [people, isLoading, isError, error, addPerson, deletePerson]);
 
   return (
-    <PersonContext.Provider value={{ people, addPerson, deletePerson }}>
+    <PersonContext.Provider value={contextValue}>
       {children}
     </PersonContext.Provider>
   );
 }
 
-export function usePerson() {
+// Custom hook with better error messaging and type safety
+export function usePerson(): PersonContextType {
   const context = useContext(PersonContext);
-  if (context === undefined) {
-    throw new Error('usePerson must be used within a PersonProvider');
-  }
   return context;
 } 

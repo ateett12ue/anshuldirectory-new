@@ -53,10 +53,9 @@ const PersonAdd = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center py-8 sm:py-12 md:py-16 px-4 sm:px-6 lg:px-8 animate-fade-in">
+    <div className="min-h-screen flex items-center justify-center py-4 sm:py-12 md:py-16 px-4 sm:px-6 lg:px-8 animate-fade-in">
       <div className="w-full max-w-sm sm:max-w-md md:max-w-lg bg-[#1e293b]/70 backdrop-blur-sm rounded-xl sm:rounded-2xl shadow-xl shadow-slate-900/40 border border-slate-700/50 p-6 sm:p-8 md:py-10">
         <h2 className="text-2xl sm:text-3xl font-bold text-center text-slate-100 mb-6 sm:mb-8">Add New Person</h2>
-
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 sm:space-y-6">
           {/* Basic Fields */}
           {[
@@ -184,7 +183,7 @@ const PersonAdd = () => {
             </div>
             <h3 className="text-xl sm:text-2xl font-semibold text-white mb-3 sm:mb-4">Person Added Successfully</h3>
 
-            <div className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4">
+            <div className="flex flex-row sm:flex-col md:flex-row justify-center gap-3 sm:gap-4">
               <button
                 onClick={handleAddAnother}
                 className="px-6 sm:px-8 py-3 sm:py-4 bg-black text-white rounded-lg text-center w-full sm:w-auto font-medium hover:border hover:border-violet-500 hover:shadow-violet-500/30 hover:cursor-pointer transition-all duration-200"
